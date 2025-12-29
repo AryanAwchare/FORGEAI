@@ -1,0 +1,7 @@
+{
+  "name": "Copy of ForgeAI - Agentic Fitness & Wellness",
+  "description": "An autonomous fitness system that plans, executes, and adapts your workouts based on goal-oriented reasoning and progress evaluation.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

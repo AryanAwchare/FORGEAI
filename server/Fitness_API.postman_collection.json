@@ -1,0 +1,357 @@
+{
+  "info": {
+    "name": "Fitness & Wellness API",
+    "description": "Complete API collection for Fitness & Wellness Backend with Supabase and Gemini AI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "replace-with-actual-user-id",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Check server health and database connection status"
+      }
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"name\": \"John Doe\",\n  \"preferences\": {\n    \"notifications\": true,\n    \"theme\": \"dark\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"preferences\": {\n    \"notifications\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fitness Goals",
+      "item": [
+        {
+          "name": "Get User Goals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fitness/goals/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "goals", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Goal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"goalType\": \"weight_loss\",\n  \"target\": \"Lose 10kg\",\n  \"deadline\": \"2024-12-31\",\n  \"description\": \"Lose weight through consistent exercise and diet\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fitness/goals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "goals"]
+            }
+          }
+        },
+        {
+          "name": "Update Goal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\",\n  \"progress\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fitness/goals/:goalId",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "goals", ":goalId"]
+            }
+          }
+        },
+        {
+          "name": "Delete Goal",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fitness/goals/:goalId",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "goals", ":goalId"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workouts",
+      "item": [
+        {
+          "name": "Get User Workouts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fitness/workouts/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "workouts", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Workout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"workoutType\": \"strength\",\n  \"duration\": 45,\n  \"caloriesBurned\": 300,\n  \"exercises\": [\n    {\n      \"name\": \"Squats\",\n      \"sets\": 3,\n      \"reps\": 12\n    },\n    {\n      \"name\": \"Push-ups\",\n      \"sets\": 3,\n      \"reps\": 15\n    }\n  ],\n  \"notes\": \"Great workout session\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fitness/workouts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "workouts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fitness Progress",
+      "item": [
+        {
+          "name": "Get User Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fitness/progress/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "progress", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Log Progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"weight\": 75.5,\n  \"bodyFat\": 18.5,\n  \"measurements\": {\n    \"chest\": 95,\n    \"waist\": 80,\n    \"hips\": 90,\n    \"arms\": 35,\n    \"legs\": 55\n  },\n  \"notes\": \"Feeling stronger!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/fitness/progress",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fitness", "progress"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Features",
+      "item": [
+        {
+          "name": "Generate Workout Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fitnessLevel\": \"beginner\",\n  \"goals\": \"weight loss and muscle toning\",\n  \"preferences\": \"home workout, no equipment\",\n  \"duration\": 30\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ai/generate-workout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ai", "generate-workout"]
+            },
+            "description": "Generate a personalized workout plan using Gemini AI"
+          }
+        },
+        {
+          "name": "Generate Meal Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dietaryRestrictions\": \"vegetarian, no dairy\",\n  \"goals\": \"muscle gain\",\n  \"calories\": 2500,\n  \"meals\": 4\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ai/generate-meal-plan",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ai", "generate-meal-plan"]
+            },
+            "description": "Generate a personalized meal plan using Gemini AI"
+          }
+        },
+        {
+          "name": "AI Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How do I improve my squat form?\",\n  \"context\": \"beginner weightlifter with lower back issues\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ai/chat",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ai", "chat"]
+            },
+            "description": "Chat with AI fitness coach"
+          }
+        },
+        {
+          "name": "Analyze Exercise Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exercise\": \"deadlift\",\n  \"description\": \"I'm lifting 100kg but feel strain in my lower back after 3 reps\",\n  \"issues\": \"lower back pain, difficulty maintaining neutral spine\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ai/analyze-form",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ai", "analyze-form"]
+            },
+            "description": "Get AI feedback on exercise form and technique"
+          }
+        }
+      ]
+    }
+  ]
+}
