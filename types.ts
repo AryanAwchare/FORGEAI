@@ -8,6 +8,9 @@ export interface UserProfile {
   initialWeight: number;
   targetWeight: number;
   unit: 'kg' | 'lbs';
+  user_id?: string;
+  current_weight?: number;
+  name?: string;
 }
 
 export interface Exercise {

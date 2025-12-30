@@ -17,7 +17,15 @@ const AppContent: React.FC = () => {
   const { user, profile, isLoading, signOut } = useAuth();
   const [state, setState] = useState<AppState>(() => {
     const saved = localStorage.getItem('forge_agent_state');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // We will validate ownership in a useEffect, for now load it but risk is handled below
+        return parsed;
+      } catch (e) {
+        // invalid json
+      }
+    }
     return {
       profile: null,
       history: [],
@@ -30,6 +38,81 @@ const AppContent: React.FC = () => {
     };
   });
 
+  // Clear state when user changes or if loaded state doesn't match current user
+  useEffect(() => {
+    // Define the initial empty state
+    const initialState: AppState = {
+      profile: null,
+      history: [],
+      currentWorkout: null,
+      isInitialLoading: false,
+      globalPhase: 'Initialization',
+      globalConsistency: 0,
+      globalFatigue: 'low',
+      currentWeight: 0
+    };
+
+    const loadUserData = async (userId: string) => {
+      try {
+        console.log('Fetching user history from Supabase...');
+        const { data: historyData, error } = await supabase
+          .from('workout_history')
+          .select('*')
+          .eq('user_id', userId)
+          .order('date', { ascending: false });
+
+        if (error) throw error;
+
+        // Map Supabase history to AppState history format if needed
+        // Assuming the structure matches or needs slight adaptation. 
+        // Note: We might need to parse 'workout' json column if it's stored as JSONB
+        // For now, assuming direct mapping or basic compatibility.
+        const mappedHistory: HistoryEntry[] = (historyData || []).map(h => ({
+          date: h.date,
+          status: h.status,
+          difficulty: h.difficulty,
+          feedback: h.feedback,
+          workout: h.workout_details || { title: 'Past Workout', exercises: [] } // Fallback if full object isn't stored
+        }));
+
+        // Calculate stats
+        const consistency = Math.round(Math.min(100, (mappedHistory.filter(h => h.status === 'completed').length / (mappedHistory.length || 1)) * 100));
+
+        setState(prev => ({
+          ...prev,
+          history: mappedHistory,
+          globalConsistency: consistency
+        }));
+
+      } catch (err) {
+        console.error('Error loading user history:', err);
+      }
+    };
+
+    if (user) {
+      // If we have a user, check if the current state belongs to them.
+      const isProfileMismatch = state.profile && state.profile.user_id !== user.id;
+      // Also check if we have history/workout data but no verified profile (orphaned data)
+      const isOrphanedData = !state.profile && (state.history.length > 0 || state.currentWorkout);
+
+      // If mismatch, clear state AND fetch new data
+      if (isProfileMismatch || isOrphanedData) {
+        console.log('User mismatch or orphaned data detected. Clearing state and reloading.');
+        setState(initialState);
+        loadUserData(user.id);
+      } else if (state.history.length === 0) {
+        // If state matches but history is empty (e.g. fresh refresh), fetch it
+        loadUserData(user.id);
+      }
+    } else {
+      // If user logs out (user is null), strictly clear any personal data from memory/view
+      if (state.profile || state.history.length > 0 || state.currentWorkout) {
+        console.log('User logged out. Clearing state.');
+        setState(initialState);
+      }
+    }
+  }, [user]);
+
   const [view, setView] = useState<'dashboard' | 'workout' | 'history' | 'profile' | 'edit-profile'>('dashboard');
   const [isProcessing, setIsProcessing] = useState(false);
   const [agentRawText, setAgentRawText] = useState<string>('');
@@ -41,15 +124,18 @@ const AppContent: React.FC = () => {
 
   // Sync profile from Supabase to AppState when loaded
   useEffect(() => {
-    if (profile && (!hasSyncedProfile.current || state.currentWeight === 0)) {
-      setState(prev => ({
-        ...prev,
-        profile: profile,
-        currentWeight: profile.current_weight || profile.initialWeight || prev.currentWeight
-      }));
-      hasSyncedProfile.current = true;
+    // Only update if profile exists and we haven't synced OR if the IDs match so we can trust the update
+    if (profile && user && profile.user_id === user.id) {
+      // Check if we need to update to avoid infinite loops
+      if (!state.profile || state.profile.user_id !== profile.user_id || state.currentWeight !== profile.current_weight) {
+        setState(prev => ({
+          ...prev,
+          profile: profile,
+          currentWeight: profile.current_weight || profile.initialWeight || prev.currentWeight
+        }));
+      }
     }
-  }, [profile, state.currentWeight]);
+  }, [profile, user]);
 
   useEffect(() => {
     localStorage.setItem('forge_agent_state', JSON.stringify(state));
@@ -241,7 +327,10 @@ const AppContent: React.FC = () => {
 
   // If user is logged in but hasn't completed onboarding (no goal set), show onboarding
   // Check both state.profile and Supabase profile
-  const hasCompletedProfile = (state.profile?.goal) || (profile?.goal);
+  // Check if profile is complete. We STRICTLY check for a goal.
+  // If we have a user but no profile from Supabase yet (and not loading), it means they are new.
+  // Or if they have a profile but 'goal' is missing.
+  const hasCompletedProfile = !!(profile?.goal && profile?.goal.length > 0);
 
   if (!hasCompletedProfile) {
     return <Onboarding onComplete={handleOnboardingComplete} />;

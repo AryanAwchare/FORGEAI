@@ -118,7 +118,7 @@ router.post('/generate-meal-plan', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: goals, calories, meals' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `Generate a personalized meal plan based on the following:
     - Dietary Restrictions: ${dietaryRestrictions || 'None'}
@@ -168,7 +168,7 @@ router.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are a certified fitness and wellness AI assistant. You provide helpful, evidence-based advice on:
     - Exercise and workout routines
@@ -202,7 +202,7 @@ router.post('/analyze-form', async (req, res) => {
       return res.status(400).json({ error: 'Exercise and description are required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `As a fitness expert, analyze exercise form for: ${exercise}
     

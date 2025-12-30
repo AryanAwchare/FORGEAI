@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types';
-import { Target, Shield, Zap, ChevronRight, Clock, Box, Scale, TrendingDown, TrendingUp, Heart } from 'lucide-react';
+import { Target, Shield, ShieldAlert, Zap, ChevronRight, Clock, Box, Scale, TrendingDown, TrendingUp, Heart } from 'lucide-react';
 
 interface OnboardingProps {
   onComplete: (profile: UserProfile) => void;
@@ -47,7 +47,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         {/* Header */}
         <div className="mb-8 relative z-10 shrink-0">
           <div className="flex gap-2.5 mb-6">
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3, 4, 5].map(i => (
               <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-700 ${i <= step ? 'bg-brand-600' : 'bg-slate-100 dark:bg-slate-800'}`} />
             ))}
           </div>
@@ -55,9 +55,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             {step === 1 && "What's your main goal?"}
             {step === 2 && "Available equipment?"}
             {step === 3 && "Experience level?"}
-            {step === 4 && "Final details"}
+            {step === 4 && "Physical Status"}
+            {step === 5 && "Final details"}
           </h2>
-          <p className="text-slate-400 text-sm font-medium uppercase tracking-wider mt-2">Step {step} of 4</p>
+          <p className="text-slate-400 text-sm font-medium uppercase tracking-wider mt-2">Step {step} of 5</p>
         </div>
 
         {/* Content Area */}
@@ -68,7 +69,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <button
                   key={g.id}
                   onClick={() => { setProfile({ ...profile, goal: g.fullId }); nextStep(); }}
-                  className={`p-6 rounded-2xl text-left transition-all border relative overflow-hidden group hover:scale-[1.02] active:scale-95 ${profile.goal === g.fullId ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-500 ring-1 ring-brand-500' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-slate-600'}`}
+                  className={`p-6 rounded-2xl text-left transition-all border relative overflow-hidden group hover:scale-[1.02] active:scale-95 ${profile.goal === g.fullId ? 'bg-brand-5 dark:bg-brand-900/20 border-brand-500 ring-1 ring-brand-500' : 'bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 hover:border-brand-300 dark:hover:border-slate-600'}`}
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-4 ${profile.goal === g.fullId ? 'bg-brand-500 text-white' : 'bg-white dark:bg-slate-800 text-slate-500'} transition-colors shadow-sm`}>
                     {g.icon}
@@ -128,6 +129,50 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           )}
 
           {step === 4 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200 dark:border-amber-900/30">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <ShieldAlert className="w-6 h-6 text-amber-600 dark:text-amber-500" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white mb-1">Injury Prevention Protocol</h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      ForgeAI will scan your anatomy requests effectively bypassing movements that strain specific areas. Be specific about injuries.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Describe any injuries/pain points</label>
+                <textarea
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 focus:border-brand-500 outline-none text-sm font-medium text-slate-900 dark:text-white min-h-[120px] resize-none"
+                  placeholder="e.g. Left shoulder pain when pressing, lower back tightness after deadlifts, recovering from knee surgery..."
+                  value={profile.limitations}
+                  onChange={(e) => setProfile({ ...profile, limitations: e.target.value })}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={nextStep}
+                  className="flex-1 py-3 bg-slate-100 dark:bg-slate-8000 text-slate-500 dark:text-slate-400 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-200 dark:hover:bg-slate-800"
+                >
+                  Skip (No Injuries)
+                </button>
+                <button
+                  onClick={nextStep}
+                  disabled={!profile.limitations}
+                  className="flex-1 py-3 bg-brand-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-brand-500 disabled:opacity-50"
+                >
+                  Confirm Status
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="grid grid-cols-2 gap-5">
                 <div className="space-y-2">
@@ -195,7 +240,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             </button>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <button
               onClick={() => onComplete(profile)}
               disabled={!profile.initialWeight || !profile.targetWeight}

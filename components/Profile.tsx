@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { LogOut, User as UserIcon, Settings, Award, TrendingUp, Calendar, Mail, Target } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings, Award, TrendingUp, Calendar, Mail, Target, Edit2, Check, X } from 'lucide-react';
 
 interface ProfileProps {
     onEditProfile?: () => void;
 }
 
 export const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
-    const { user, profile, signOut } = useAuth();
+    const { user, profile, signOut, updateName } = useAuth();
+
+    // Fallback logic for username: 1. Profile Name (DB) -> 2. Metadata Name (Auth) -> 3. Email prefix
+    const displayedUsername = profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Forge User';
+
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [newName, setNewName] = useState(displayedUsername);
+    const [isSavingName, setIsSavingName] = useState(false);
+
+    // Sync local state when profile loads
+    useEffect(() => {
+        setNewName(displayedUsername);
+    }, [displayedUsername]);
 
     const handleLogout = async () => {
         if (window.confirm('Are you sure you want to decouple from the ForgeAI system?')) {
@@ -15,7 +27,24 @@ export const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
         }
     };
 
-    const username = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Forge User';
+    const handleSaveName = async () => {
+        if (!newName.trim() || newName === displayedUsername) {
+            setIsEditingName(false);
+            return;
+        }
+
+        try {
+            setIsSavingName(true);
+            await updateName(newName);
+            setIsEditingName(false);
+        } catch (err) {
+            alert('Failed to update username. Please try again.');
+            console.error(err);
+        } finally {
+            setIsSavingName(false);
+        }
+    };
+
     const email = user?.email || 'No email linked';
     const joinDate = user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown';
 
@@ -37,11 +66,48 @@ export const Profile: React.FC<ProfileProps> = ({ onEditProfile }) => {
                         </div>
 
                         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-8">
-                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-4xl font-black text-white shadow-lg shadow-brand-500/30 ring-4 ring-white dark:ring-slate-900">
-                                {username.charAt(0).toUpperCase()}
+                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-4xl font-black text-white shadow-lg shadow-brand-500/30 ring-4 ring-white dark:ring-slate-900 shrink-0">
+                                {displayedUsername.charAt(0).toUpperCase()}
                             </div>
-                            <div className="text-center md:text-left space-y-2 flex-1">
-                                <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{username}</h2>
+                            <div className="text-center md:text-left space-y-2 flex-1 w-full">
+                                {isEditingName ? (
+                                    <div className="flex items-center gap-2 justify-center md:justify-start">
+                                        <input
+                                            type="text"
+                                            value={newName}
+                                            onChange={(e) => setNewName(e.target.value)}
+                                            className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1 text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight w-full max-w-[300px] outline-none focus:border-brand-500"
+                                            autoFocus
+                                        />
+                                        <button
+                                            onClick={handleSaveName}
+                                            disabled={isSavingName}
+                                            className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50"
+                                        >
+                                            <Check size={20} />
+                                        </button>
+                                        <button
+                                            onClick={() => { setIsEditingName(false); setNewName(displayedUsername); }}
+                                            className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"
+                                        >
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-3 justify-center md:justify-start group/name">
+                                        <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight truncate max-w-[400px]">
+                                            {displayedUsername}
+                                        </h2>
+                                        <button
+                                            onClick={() => setIsEditingName(true)}
+                                            className="opacity-0 group-hover/name:opacity-100 transition-opacity p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-brand-500"
+                                            title="Edit Username"
+                                        >
+                                            <Edit2 size={16} />
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="flex items-center justify-center md:justify-start gap-2 text-slate-500 dark:text-slate-400 font-medium text-sm">
                                     <Mail className="w-4 h-4" /> {email}
                                 </div>
