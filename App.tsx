@@ -330,7 +330,7 @@ const AppContent: React.FC = () => {
   // Check if profile is complete. We STRICTLY check for a goal.
   // If we have a user but no profile from Supabase yet (and not loading), it means they are new.
   // Or if they have a profile but 'goal' is missing.
-  const hasCompletedProfile = !!(profile?.goal && profile?.goal.length > 0);
+  const hasCompletedProfile = !!((profile?.goal && profile?.goal.length > 0) || (state.profile?.goal && state.profile?.goal.length > 0));
 
   if (!hasCompletedProfile) {
     return <Onboarding onComplete={handleOnboardingComplete} />;
