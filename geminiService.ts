@@ -2,7 +2,7 @@
 
 import type { UserProfile, HistoryEntry } from "./types";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://forgeai-1.onrender.com';
 
 const MASTER_SYSTEM_PROMPT = `
 You are ForgeAI, an elite fitness intelligence agent. 
